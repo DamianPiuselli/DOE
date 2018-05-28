@@ -7,10 +7,7 @@ Created on Wed May 23 20:26:06 2018
 """
 
 from pyDOE import *
-import pandas as pd
-from pandas import DataFrame
 import numpy as np
-
 
 #  central composite design =   F + C + E
 # F: matriz de los elementos del modelo factorial, +1 -1
@@ -18,14 +15,10 @@ import numpy as np
 # E: matriz de los puntos axiales, 2*k elementos, +alpha - alpha
 #    alpha = (numero de elementos de la matriz F)^1/4 para que sea rotable
 
-n = 5   #nro de factores
+n = 5 #nro de factores
 m = 5   #nro de replicados del centro
-filename = 'ccd-incoloy'  #nombre del archivo a generar
-header = ['Cr ppm', 'Ni ppm','Fe ppm','Co ppm','B ppm'] # nombre y unidades de los analitos, en el orden adecuado
-
-######## Cr , Ni, Fe , Co, B   (analitos, en ppm)
-A_MAX = (200,450,500,0.150,0.060) #limite superior de concentracion
-A_MIN = (100,190,220,0.050,0.020)  #limite inferio de concentracion
+A_MAX = (960,480,144,0.5,0.5) #limite superior de concentracion
+A_MIN = (240,120,36,0.05,0.05)  #limite inferio de concentracion
 
 
 # Calculo de la matriz F - Usando un modelo factorial FRACCIONAL!
@@ -58,12 +51,3 @@ ccd_unscaled = np.concatenate((F,E,C))
 #
 
 ccd = ((ccd_unscaled+alpha)*np.subtract(A_MAX,A_MIN)/(2*alpha))+A_MIN
-
-# convirtiendo en un dataframe y exportando a excel-
-
-df_ccd = pd.DataFrame(ccd, columns=header)
-
-
-writer = pd.ExcelWriter(filename+'.xlsx')
-df_ccd.to_excel(writer,'Sheet1',index=False)
-writer.save()
