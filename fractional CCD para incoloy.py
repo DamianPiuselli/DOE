@@ -20,11 +20,12 @@ import numpy as np
 
 n = 5   #nro de factores
 m = 5   #nro de replicados del centro
+v = 8  # nro de muestras para  validacion (latin hypercube)
 filename = 'ccd-incoloy'  #nombre del archivo a generar
 header = ['Cr ppm', 'Ni ppm','Fe ppm','Co ppm','B ppm'] # nombre y unidades de los analitos, en el orden adecuado
 
 ######## Cr , Ni, Fe , Co, B   (analitos, en ppm)
-A_MAX = (200,450,500,0.150,0.060) #limite superior de concentracion
+A_MAX = (200,450,500,0.340,0.060) #limite superior de concentracion
 A_MIN = (100,190,220,0.050,0.020)  #limite inferio de concentracion
 
 
@@ -59,11 +60,16 @@ ccd_unscaled = np.concatenate((F,E,C))
 
 ccd = ((ccd_unscaled+alpha)*np.subtract(A_MAX,A_MIN)/(2*alpha))+A_MIN
 
+# El set de validacion se genera con un set randomizado (latin-hypercube) centermaximin, para que no alla clusters.
+val_unscaled = lhs(n,samples=v,criterion='centermaximin')
+val = ((val_unscaled)*np.subtract(A_MAX,A_MIN)/(1))+A_MIN
+df_val = pd.DataFrame(val, columns=header)
+
 # convirtiendo en un dataframe y exportando a excel-
 
 df_ccd = pd.DataFrame(ccd, columns=header)
 
-
 writer = pd.ExcelWriter(filename+'.xlsx')
 df_ccd.to_excel(writer,'Sheet1',index=False)
+df_val.to_excel(writer,'Sheet2',index=False)
 writer.save()
